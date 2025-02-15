@@ -1,7 +1,7 @@
 #include "pacc-win.h"
 #include <d3d9.h>
 #include <stdlib.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -19,7 +19,7 @@ struct pacc_ctx {
   uint8_t color_changed;
   bool render_enabled;
   enum pacc_mode curr_mode;
-  atomic_bool killthread;
+  atomic_int killthread;
   HWND hwnd;
   HMODULE d3d9m;
   IDirect3D9 *d3d9;
@@ -482,6 +482,7 @@ struct pacc_win_vtable pacc_win_vtable = {
   .renderctrl = pacc_renderctrl,
 };
 
+typedef IDirect3D9 * ( WINAPI*d3d9createProc)(UINT);
 struct pacc_ctx *pacc_init_d3d9(
     HWND hwnd,
     int w, int h,
@@ -504,7 +505,8 @@ struct pacc_ctx *pacc_init_d3d9(
   if (!pc->rendermtx) goto err;
   pc->d3d9m = LoadLibraryW(L"d3d9");
   if (!pc->d3d9m) goto err;
-  IDirect3D9 * WINAPI (*d3d9create)(UINT) = (IDirect3D9 * WINAPI (*)(UINT))GetProcAddress(pc->d3d9m, "Direct3DCreate9");
+  d3d9createProc d3d9create = (d3d9createProc)
+      GetProcAddress(pc->d3d9m, "Direct3DCreate9");
   if (!d3d9create) goto err;
   pc->d3d9 = d3d9create(D3D_SDK_VERSION);
   if (!pc->d3d9) goto err;

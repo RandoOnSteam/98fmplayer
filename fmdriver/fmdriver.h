@@ -58,10 +58,10 @@ struct fmdriver_track_status {
   enum fmdriver_track_info info;
   uint8_t ticks;
   uint8_t ticks_left;
-  uint8_t key;
+  uint8_t key; /* keycode */
   // key after pitchbend, LFO, etc. applied
   uint8_t actual_key;
-  uint8_t tonenum;
+  uint8_t tonenum; /* program/voice */
   uint8_t volume;
   uint8_t gate;
   int8_t detune;
