@@ -6,7 +6,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 
 extern struct oscilloview {
   atomic_flag flag;

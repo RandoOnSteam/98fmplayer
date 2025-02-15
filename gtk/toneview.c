@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "toneview.h"
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 #include <stdbool.h>
 
 struct toneview_g toneview_g = {

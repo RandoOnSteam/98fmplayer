@@ -5,7 +5,7 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <stdlib.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 
 #include "fmdriver/fmdriver_fmp.h"
 #include "fmdriver/fmdriver_pmd.h"
@@ -27,7 +27,16 @@
 #include "fmdsp/font.h"
 #include "pacc/pacc-win.h"
 #include "fmdsp/fmdsp-pacc.h"
-
+#define WINBOOL BOOL
+#if defined(_MSC_VER)
+    bool supports_sse2() {
+        int cpuInfo[4];
+        __cpuid(cpuInfo, 1); 
+        return (cpuInfo[3] & (1 << 26)) != 0; /* EDX bit 26 */
+    }
+#else
+    #define supports_sse2() __builtin_cpu_supports("sse2")
+#endif
 enum {
   ID_OPENFILE = 0x10,
   ID_PAUSE,
@@ -252,7 +261,7 @@ static void on_dropfiles(HWND hwnd, HDROP hdrop) {
   wchar_t path[MAX_PATH] = {0};
   if (DragQueryFile(hdrop, 0, path, sizeof(path)/sizeof(path[0]))) {
     openfile(hwnd, path);
-  }  
+  }
   DragFinish(hdrop);
 }
 #endif // ENABLE_WM_DROPFILES
@@ -771,7 +780,7 @@ int CALLBACK wWinMain(HINSTANCE hinst, HINSTANCE hpinst,
   (void)hpinst;
   (void)cmdline_;
 
-  if (__builtin_cpu_supports("sse2")) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
+  if (supports_sse2()) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
 
   fft_init_table();
   about_set_fontrom_loaded(fmplayer_font_rom_load(&g.font));

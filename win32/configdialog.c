@@ -4,6 +4,7 @@
 #include <math.h>
 #include <wchar.h>
 #include <stdlib.h>
+#define WINBOOL BOOL
 
 static double mix_to_db(uint32_t mix) {
   return 20.0 * log10((double)mix / 0x10000);

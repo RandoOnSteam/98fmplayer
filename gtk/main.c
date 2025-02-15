@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <cairo.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 
 #include "common/fmplayer_file.h"
 #include "fmdriver/fmdriver_fmp.h"
@@ -536,7 +536,7 @@ int main(int argc, char **argv) {
   opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_neon;
 #endif
 #ifdef ENABLE_SSE
-  if (__builtin_cpu_supports("sse2")) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
+  if (supports_sse2()) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
 #endif
   fft_init_table();
   fmplayer_font_rom_load(&g.font98);

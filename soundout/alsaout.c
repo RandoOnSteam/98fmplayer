@@ -1,6 +1,6 @@
 #include "alsaout.h"
 #include <stdbool.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 #include <stdlib.h>
 #include <sys/eventfd.h>
 #include <pthread.h>

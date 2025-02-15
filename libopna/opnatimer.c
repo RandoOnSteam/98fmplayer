@@ -1,6 +1,5 @@
 #include "opnatimer.h"
 #include "opna.h"
-#include "oscillo/oscillo.h"
 
 enum {
   TIMERA_BITS = 10,

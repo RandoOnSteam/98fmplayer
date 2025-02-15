@@ -2,7 +2,7 @@
 #define MYON_FMPLAYER_WIN32_TONEVIEW_H_INCLUDED
 
 #include "tonedata/tonedata.h"
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

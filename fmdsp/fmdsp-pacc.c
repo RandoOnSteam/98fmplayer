@@ -1625,6 +1625,7 @@ static void update_default(struct fmdsp_pacc *fp) {
   // fft
   struct fmplayer_fft_disp_data ddata = {0};
   fft_calc(&ddata, fp->fftin);
+  /* Draw main spectrum bands */
   for (int x = 0; x < FFTDISPLEN; x++) {
     fp->pacc.buf_rect(
         fp->pc, fp->buf_horizontal_2_d,
@@ -1652,6 +1653,7 @@ static void update_default(struct fmdsp_pacc *fp) {
       }
     }
   }
+  /* Draw ceiling spectrum bands */
   for (int i = 0; i < FFTDISPLEN; i++) {
     fp->pacc.buf_rect(
         fp->pc, fp->buf_horizontal_7_d,

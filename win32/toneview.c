@@ -1,7 +1,10 @@
 #include "toneview.h"
 #include <stdbool.h>
 #include <windowsx.h>
-
+#define WINBOOL BOOL
+#if !defined(CLEARTYPE_QUALITY)
+    #define CLEARTYPE_QUALITY 5
+#endif
 enum {
   TIMER_UPDATE = 1
 };

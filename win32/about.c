@@ -4,6 +4,16 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include "version.h"
+#define WINBOOL BOOL
+#if defined(_MSC_VER)
+    static bool supports_sse2() {
+        int cpuInfo[4];
+        __cpuid(cpuInfo, 1);
+        return (cpuInfo[3] & (1 << 26)) != 0; /* EDX bit 26 */
+    }
+#else
+    #define supports_sse2() __builtin_cpu_supports("sse2")
+#endif
 
 enum {
   ID_OK = 0x10
@@ -46,7 +56,7 @@ static void update_status(void) {
            g.soundapiname ? g.soundapiname : L"",
            g.adpcm_rom ? L"" : L"un",
            g.font_rom ? L"available" : L"unavailable, using MS Gothic",
-           __builtin_cpu_supports("sse2") ? L"" : L"un");
+           supports_sse2() ? L"" : L"un");
   SetWindowText(g.static_info, buf);
 }
 

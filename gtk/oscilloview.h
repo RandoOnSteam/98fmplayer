@@ -3,11 +3,13 @@
 
 #include "libopna/opna.h"
 #include "oscillo/oscillo.h"
-
-#include <stdatomic.h>
-
+#if !defined(FMPLAYER_THREADUNSAFE)
+#include "common/stdatomic.h"
+#endif
 extern struct oscilloview {
+#if !defined(FMPLAYER_THREADUNSAFE)
   atomic_flag flag;
+#endif
   struct oscillodata oscillodata[LIBOPNA_OSCILLO_TRACK_COUNT];
 } oscilloview_g;
 

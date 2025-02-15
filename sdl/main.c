@@ -4,7 +4,7 @@
 #include <SDL.h>
 #endif
 #include <stdbool.h>
-#include <stdatomic.h>
+#include "common/stdatomic.h"
 #include "pacc/pacc.h"
 #include "fmdsp/fmdsp-pacc.h"
 #include "fmdsp/font.h"
@@ -15,7 +15,15 @@
 #include "common/fmplayer_common.h"
 #include "common/fmplayer_fontrom.h"
 #include "fft/fft.h"
-
+#if defined(_MSC_VER)
+    static bool supports_sse2() {
+        int cpuInfo[4];
+        __cpuid(cpuInfo, 1);
+        return (cpuInfo[3] & (1 << 26)) != 0; /* EDX bit 26 */
+    }
+#else
+    #define supports_sse2() __builtin_cpu_supports("sse2")
+#endif
 bool loadgl(void);
 
 enum {
@@ -235,7 +243,7 @@ int main(int argc, char **argv) {
   (void)argc;
   (void)argv;
 #ifdef ENABLE_SSE
-  if (__builtin_cpu_supports("sse2")) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
+  if (supports_sse2()) opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_sse2;
 #endif
   fft_init_table();
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
