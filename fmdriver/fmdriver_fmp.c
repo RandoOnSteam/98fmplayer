@@ -3214,11 +3214,11 @@ void fmp_title(
   for (si = 0;; si++) {
 	  uint8_t c;
     if ((offset + si) >= datalen) {
-      if (l < 3) comment[l][0] = 0;
+      while (l < 3) comment[l++][0] = 0;
       return;
     }
     if (li >= FMP_COMMENT_BUFLEN) {
-      if (l < 3) comment[l][0] = 0;
+      while (l < 3) comment[l++][0] = 0;
       return;
     }
     c = data[offset+si];
@@ -3235,7 +3235,11 @@ void fmp_title(
       l++;
     } else {
       comment[l][li] = c;
-      if (!c) return;
+      if (!c) {
+		++l;
+		while (l < 3) comment[l++][0] = 0;
+		return;
+	  }
       li++;
     }
   }
