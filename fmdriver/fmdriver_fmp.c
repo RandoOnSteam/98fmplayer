@@ -234,7 +234,7 @@ static void fmp_part_fm_vol(struct fmdriver_work *work,
       svol += part->u.fm.tone_tl[s];
       if (svol & 0x80) svol = 0x7f;
     }
-    
+
     if (!(part->u.fm.slot_mask & (1<<s))) {
       fmp_part_fm_reg_write(work, part, OPNA_TL+4*s, svol);
     }
@@ -333,7 +333,7 @@ static void fmp_ssg_ppz8_pdzf_mode_update(struct fmdriver_work *work,
     part->u.ssg.env_f.ppz = false;
     if (fmp->pdzf.mode == 2) {
       part->pdzf.mode =
-        (part->u.ssg.envbak.startvol || part->u.ssg.envbak.attack_rate) 
+        (part->u.ssg.envbak.startvol || part->u.ssg.envbak.attack_rate)
         ? 0 : 2;
     }
   }
@@ -361,7 +361,7 @@ static bool fmp_cmd63_mix_ssg(struct fmdriver_work *work,
     val = fmp_part_cmdload(fmp, part);
     fmp->ssg_mix |= val;
     //fmp->ssg_mix_se |= val;
-    
+
     fmp_ssg_ppz8_pdzf_mode_update(work, fmp, part);
     // 23e4
     work->opna_writereg(work, 0x07, fmp->ssg_mix);
@@ -859,7 +859,7 @@ static bool fmp_cmd73_relvol_adpcm(struct fmdriver_work *work,
 // ????
 // 1b64
 static void fmp() {
-  
+
 }
 */
 
@@ -1258,7 +1258,7 @@ static bool fmp_cmd7c_lfo_pan_fm(struct fmdriver_work *work,
       part->u.fm.wlfo.depth_cnt = val;
       val = fmp_part_cmdload(fmp, part);
       part->u.fm.wlfo.sync = val;
-      
+
       int pdzf_i = (part - &fmp->parts[FMP_PART_FM_EX1]);
       if ((pdzf_i == 1) || (pdzf_i == 2)) {
         struct pdzf_rhythm *pr = &fmp->pdzf.rhythm[pdzf_i-1];
@@ -1811,7 +1811,7 @@ static void fmp_part_init_lfo_awe(struct fmdriver_work *work,
   // this line not found in fmp but should be there somewhere
   // without this, when LFO E, delay would be random every keyon
   part->u.fm.alfo.speed_cnt = part->u.fm.alfo.speed;
-  
+
   part->u.fm.alfo.rate = part->u.fm.alfo.rate_orig;
   if (part->u.fm.hlfo_freq & 0x80) {
     work->opna_writereg(work, 0x22, 0x00);
@@ -1963,7 +1963,7 @@ static void fmp_part_lfo(struct fmdriver_work *work,
           part->u.fm.alfo.depth_cnt = part->u.fm.alfo.speed;
         }
       }
-    } 
+    }
   }
 }
 
@@ -2228,7 +2228,7 @@ static void fmp_part_pit_end_fm(struct fmp_part *part) {
 }
 
 static void fmp_part_pit_pdzf(
-  struct fmdriver_work *work, 
+  struct fmdriver_work *work,
   struct fmp_part *part
 ) {
   (void)work;
@@ -2423,7 +2423,7 @@ static bool fmp_part_cmd_exec2(struct fmdriver_work *work,
     part->current_ptr = 0xffff;
     return false;
   }
-  
+
   typedef bool (*cmdfunc_t)(struct fmdriver_work *work,
                           struct driver_fmp *fmp,
                           struct fmp_part *part);
@@ -3013,7 +3013,7 @@ static void fmp_init_parts(struct fmdriver_work *work,
   for (int i = 0; i < 6; i++) {
     fmp_part_pan_vol_rhythm(work, &fmp->rhythm, i);
   }
-  
+
   {
     // 3b86
     struct fmp_part *part = &fmp->parts[FMP_PART_ADPCM];
@@ -3026,7 +3026,7 @@ static void fmp_init_parts(struct fmdriver_work *work,
   // opna flag mask, reset
   // work->opna_writereg(work, 0x110, 0x1c);
   // work->opna_writereg(work, 0x110, 0x80);
-  
+
   fmp->timerb = 0xca;
   work->timerb = fmp->timerb;
   fmp->timerb_bak = 0xca;
@@ -3049,7 +3049,7 @@ static void fmp_init_parts(struct fmdriver_work *work,
     = fmp->datainfo.partptr[FMP_DATA_RHYTHM];
   fmp->rhythm.part.loop_ptr
     = fmp->datainfo.loopptr[FMP_DATA_RHYTHM];
-    
+
   fmp->parts[FMP_PART_ADPCM].current_ptr
     = fmp->datainfo.partptr[FMP_DATA_ADPCM];
   fmp->parts[FMP_PART_ADPCM].loop_ptr
@@ -3072,11 +3072,11 @@ static void fmp_init_parts(struct fmdriver_work *work,
   fmp->total_clocks = 0;
   fmp->clock_divider = 10;
   //  1b64
-  
+
   // 3c36
   /*
   if (work->ppz8_functbl) {
-    work->ppz8_functbl->total_volume(work->ppz8, 
+    work->ppz8_functbl->total_volume(work->ppz8,
   }
   */
   fmp_fm_pdzf_mode_update(work, fmp, &fmp->parts[FMP_PART_FM_EX1]);
@@ -3183,7 +3183,7 @@ static void fmp_struct_init(struct fmdriver_work *work,
   fmp->parts[FMP_PART_FM_EX3].pdzf.ppz8_channel = 5;
   fmp->parts[FMP_PART_FM_EX3].pdzf.loopstart32 = -1;
   fmp->parts[FMP_PART_FM_EX3].pdzf.loopend32 = -1;
-  
+
   // ppz8 unused parts
   for (int i = 0; i < 8; i++) {
     fmp->parts[FMP_PART_PPZ8_1+i].status.off = true;
@@ -3202,36 +3202,39 @@ static void fmp_opna_interrupt(struct fmdriver_work *work) {
   }
 }
 
-static void fmp_title(
-    struct fmdriver_work *work,
-    struct driver_fmp *fmp,
-    uint16_t offset) {
-  (void)work;
+void fmp_title(
+    const uint8_t *data,
+	uint16_t datalen,
+	uint8_t comment[3][FMP_COMMENT_BUFLEN],
+	uint8_t* pdzfmode) {
   int l = 0;
   int li = 0;
-  for (int si = 0;; si++) {
-    if ((offset + si) >= fmp->datalen) {
-      if (l < 3) fmp->comment[l][0] = 0;
+  int si;
+  uint16_t offset = read16le(data)+4;
+  for (si = 0;; si++) {
+	  uint8_t c;
+    if ((offset + si) >= datalen) {
+      if (l < 3) comment[l][0] = 0;
       return;
     }
     if (li >= FMP_COMMENT_BUFLEN) {
-      if (l < 3) fmp->comment[l][0] = 0;
+      if (l < 3) comment[l][0] = 0;
       return;
     }
-    uint8_t c = fmp->data[offset+si];
+    c = data[offset+si];
     if (l >= 3) {
       // Z8X
-      if (c) fmp->pdzf.mode = 1;
+      if (c && pdzfmode) *pdzfmode = 1;
       return;
     }
     if (c == '\r') {
       continue;
     } else if (c == '\n') {
-      fmp->comment[l][li] = 0;
+      comment[l][li] = 0;
       li = 0;
       l++;
     } else {
-      fmp->comment[l][li] = c;
+      comment[l][li] = c;
       if (!c) return;
       li++;
     }
@@ -3247,7 +3250,7 @@ static void fmp_check_pdzf(struct driver_fmp *fmp) {
 /*
 // copy title string (CP932) to fmdriver_work struct,
 // and detect which PDZF(/Z8X) mode to use
-static void fmp_title(struct fmdriver_work *work,
+void fmp_title(struct fmdriver_work *work,
                       struct driver_fmp *fmp,
                       uint16_t offset) {
   int l = 0;
@@ -3272,7 +3275,7 @@ static void fmp_title(struct fmdriver_work *work,
       return;
     }
     uint8_t c = data[offset+si];
-    
+
     if (l >= 3) {
       if (c) {
         if (!fmp->pdzf.mode) {
@@ -3335,6 +3338,61 @@ static void fmp_title(struct fmdriver_work *work,
   }
 }
 */
+bool fmp_check_valid(uint8_t *data, uint16_t datalen)
+{
+  bool pviname_valid;
+  uint16_t offset = read16le(data);
+  if ((offset+4) > datalen) {
+    FMDRIVER_DEBUG("invalid offset value\n");
+    return false;
+  }
+  if ((data[offset] == 'F') && (data[offset+1] == 'M') &&
+      (data[offset+2] == 'C')) {
+    uint8_t dataver = data[offset+3];
+    FMDRIVER_DEBUG("FMP data\n");
+    if ((dataver & 0xf) >= 0x8) {
+      FMDRIVER_DEBUG("call word 4152\n");
+    }
+    if (dataver <= 0x29) {
+      FMDRIVER_DEBUG("format:1\n");
+      if (datalen < 0x1au) {
+        FMDRIVER_DEBUG("file length shorter than header\n");
+        return false;
+      }
+	  pviname_valid = false;
+    } else if (dataver <= 0x49) {
+      FMDRIVER_DEBUG("format:2\n");
+      if (datalen < 0x2eu) {
+        FMDRIVER_DEBUG("file length shorter than header\n");
+        return false;
+      }
+	  pviname_valid = true;
+    } else if (dataver <= 0x69) {
+      FMDRIVER_DEBUG("format:3\n");
+      if (datalen < 0x5eu) {
+        FMDRIVER_DEBUG("file length shorter than header\n");
+        return false;
+      }
+	  pviname_valid = true;
+    } else {
+      FMDRIVER_DEBUG("invalid format information\n");
+      return false;
+    }
+  } else if ((data[offset] == 'E') && (data[offset+1] == 'L') &&
+             (data[offset+2] == 'F')) {
+    FMDRIVER_DEBUG("PLAY6 data\n");
+    if (datalen < 0x2au) {
+      FMDRIVER_DEBUG("file length shorter than header\n");
+      return false;
+    }
+	pviname_valid = false;
+  } else {
+    return false;
+  }
+  (void)(pviname_valid);
+  return true;
+}
+
 
 bool fmp_load(struct driver_fmp *fmp,
               uint8_t *data, uint16_t datalen)
@@ -3580,7 +3638,7 @@ static const char *fmp_get_comment(struct fmdriver_work *work, int line) {
 }
 
 void fmp_init(struct fmdriver_work *work, struct driver_fmp *fmp) {
-  fmp_title(work, fmp, read16le(fmp->data)+4);
+  fmp_title(fmp->data, fmp->datalen, fmp->comment, &fmp->pdzf.mode);
   fmp_check_pdzf(fmp);
   work->comment_mode_pmd = false;
   work->get_comment = fmp_get_comment;

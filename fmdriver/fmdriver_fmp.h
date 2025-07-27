@@ -254,7 +254,7 @@ struct fmp_part {
   // 0050
   uint8_t opna_keyon_out; // output this to 0x28
   // when SSG, this can be PPZ8 channel num
-  
+
   // 0051
   uint8_t eff_chan;
   union {
@@ -498,7 +498,7 @@ struct driver_fmp {
   uint16_t adpcm_endaddr[0x80];
   // 0ff6
   // title
-  
+
   // filename without extension .PVI
   char ppz_name[9];
   char pvi_name[9];
@@ -526,7 +526,7 @@ struct driver_fmp {
     } flags;
   } datainfo;
   uint8_t rand71;
-  
+
   struct {
     // when 0, no PDZF
     // when 1, PDZF Normal mode
@@ -556,7 +556,11 @@ void fmp_init(struct fmdriver_work *work, struct driver_fmp *fmp);
 // this function will access opna
 bool fmp_adpcm_load(struct fmdriver_work *work,
                     uint8_t *data, size_t datalen);
-
+// !comment[i][0] == bad
+void fmp_title(const uint8_t *data, uint16_t datalen,
+	uint8_t comment[3][FMP_COMMENT_BUFLEN], uint8_t* pdzfmode);
+// returns true if a valid fmp
+bool fmp_check_valid(uint8_t *data, uint16_t datalen);
 // 1da8
 // 6190: fmp external characters
 

@@ -234,6 +234,24 @@ static void pmd_reset_state(struct driver_pmd *pmd) {
   pmd->pcm86_vol_spb = pmd->pcm86_vol_spb_orig;
 }
 
+bool pmd_check_valid(const uint8_t *data, uint16_t datalen) {
+	int pi;
+	uint16_t ptr;
+	++data;
+	--datalen;
+  if (data[-1] > 1) return false;
+  if (datalen < 0x18) return false;
+  if (data[0] != 0x18) {
+    if (datalen < (0x18+2)) return false;
+  }
+  // 0fcd
+  for (pi = 0; pi <= PMD_PART_RHYTHM; pi++) {
+    ptr = read16le(&data[pi*2]);
+    if (datalen < (ptr + 1)) return false;
+  }
+  return true;
+}
+
 // 0fa9
 static bool pmd_data_init(struct driver_pmd *pmd) {
   if (pmd->data[-1] > 1) return false;
@@ -835,7 +853,7 @@ static uint8_t pmd_part_lfo_init_fm(
   }
   // 3072
   part->curr_note = note;
-  
+
   if (n == 0xf) {
     pmd_lfo_tick_if_needed(pmd, part);
     return note;
@@ -1664,7 +1682,7 @@ static void pmd_adpcm_vol_out(
 ) {
   uint8_t vol = part->volume_save;
   if (!vol) vol = part->vol;
-  
+
   // 04a4
   if (pmd->adpcm_voldown) {
     uint8_t voldown = -pmd->adpcm_voldown;
@@ -1728,7 +1746,7 @@ static void pmd_ppz8_vol_out(
 ) {
   uint8_t vol = part->volume_save;
   if (!vol) vol = part->vol;
-  
+
   // 0b3f
   if (pmd->ppz8_voldown) {
     uint8_t voldown = -pmd->ppz8_voldown;
@@ -2047,7 +2065,7 @@ static void pmd_fm_freq_out(
     part->output_freq = blkfnum;
     pmd_reg_write(work, pmd, pmd->proc_ch + 0xa3, blkfnum >> 8);
     pmd_reg_write(work, pmd, pmd->proc_ch + 0x9f, blkfnum);
-    
+
   } else {
     // 2837
     uint8_t fm_slotmask = part->fm_slotmask;
@@ -2469,7 +2487,7 @@ static void pmd_cmdf8_repeat(
       return;
     }
   } else {
-    // 0xf8 0x00 0x00 ptr 
+    // 0xf8 0x00 0x00 ptr
     part->ptr++;
     part->loop.looped = true;
     part->loop.ended = false;
@@ -4961,7 +4979,7 @@ static void pmd_part_proc_ppz8_lfoenv(
   pmd->lfoprocf = lfof_z;
   pmd->lfoprocf_b = lfof_z;
   pmd->lfoprocf.portamento = part->lfof.portamento;
-  
+
   if (part->lfof.freq || part->lfof.vol || part->lfof.sync || part->lfof.portamento ||
       part->lfof_b.freq || part->lfof_b.vol || part->lfof_b.sync || part->lfof_b.portamento) {
     // 085a
@@ -5034,7 +5052,7 @@ static void pmd_part_proc_note_masked(
   part->curr_note = 0xff;
   part->len = part->len_cnt = pmd_part_cmdload(pmd, part);
   part->note_proc++;
-  
+
   if (!pmd->volume_saved) {
     part->volume_save = 0;
   }
@@ -5211,7 +5229,7 @@ static void pmd_part_proc_ssg(
   }
   */
   part->proc_masked = pmd_part_masked(part);
-  
+
   part->len_cnt--;
   if (part->proc_masked) {
     part->keystatus.off = true;
@@ -5350,7 +5368,7 @@ static void pmd_part_proc_opnarhythm(
   struct pmd_part *part
 ) {
   if (!part->ptr) return;
-  
+
   if (--part->len_cnt) {
     pmd_part_loop_check(pmd, part);
     return;
@@ -5919,7 +5937,7 @@ static void pmd_mstart(
     pmd->parts[PMD_PART_ADPCM].mask.disabled = true;
   }
   // reset PPZ8
-  
+
   // 0f99
   pmd_reset_opna(work, pmd);
   pmd_reset_timer(work, pmd);
@@ -5948,30 +5966,32 @@ bool pmd_load(struct driver_pmd *pmd,
 
 // check if null-terminated string is valid
 static const char *pmd_check_str(
-  const struct driver_pmd *pmd,
+  const uint8_t *data,
+  const uint16_t datalen,
   uint16_t ptr
 ) {
   uint16_t c = ptr;
-  while (pmd->datalen >= (c+1)) {
-    if (!pmd->data[c++]) return (const char *)&pmd->data[ptr];
+  while (datalen >= (c+1)) {
+    if (!data[c++]) return (const char *)&data[ptr];
   }
   return 0;
 }
 
 // 383e
 const char *pmd_get_memo(
-  const struct driver_pmd *pmd,
+  const uint8_t *data,
+  const uint16_t datalen,
   int index
 ) {
   if (index < -2) return 0;
-  if (pmd->datalen < 2) return 0;
-  if (read16le(&pmd->data[0]) == 0x18) return 0;
-  if (pmd->datalen < (0x18+2)) return 0;
-  uint16_t toneptr = read16le(&pmd->data[0x18]);
+  if (datalen < 2) return 0;
+  if (read16le(&data[0]) == 0x18) return 0;
+  if (datalen < (0x18+2)) return 0;
+  uint16_t toneptr = read16le(&data[0x18]);
   if (toneptr < 4) return 0;
-  if (pmd->datalen < toneptr) return 0;
-  uint8_t flaglow = pmd->data[toneptr-2];
-  uint8_t flaghigh = pmd->data[toneptr-1];
+  if (datalen < toneptr) return 0;
+  uint8_t flaglow = data[toneptr-2];
+  uint8_t flaghigh = data[toneptr-1];
   if (flaglow != 0x40) {
     if (flaghigh != 0xfe) return 0;
     if (flaglow < 0x41) return 0;
@@ -5980,18 +6000,24 @@ const char *pmd_get_memo(
   if (flaglow >= 0x48) index++;
   if (index < 0) return 0;
   // 3873
-  uint16_t memoptr = read16le(&pmd->data[toneptr-4]);
-  while ((pmd->datalen >= (memoptr+2)) && read16le(&pmd->data[memoptr])) {
+  uint16_t memoptr = read16le(&data[toneptr-4]);
+  while ((datalen >= (memoptr+2)) && read16le(&data[memoptr])) {
     if (index == 0) {
-      if (pmd->datalen < (memoptr+2)) return 0;
-      return pmd_check_str(pmd, read16le(&pmd->data[memoptr]));
+      if (datalen < (memoptr+2)) return 0;
+      return pmd_check_str(data, datalen, read16le(&data[memoptr]));
     }
     memoptr += 2;
     index--;
   }
   return 0;
 }
-
+const char *pmd_get_memo_(
+  const struct driver_pmd *pmd,
+  int index
+)
+{
+	return pmd_get_memo(pmd->data, pmd->datalen, index);
+}
 void pmd_filenamecopy(char *dest, const char *src) {
   int i;
   for (i = 0; i < (PMD_FILENAMELEN+1); i++) {
@@ -6008,7 +6034,7 @@ void pmd_filenamecopy(char *dest, const char *src) {
 static const char *pmd_get_comment(struct fmdriver_work *work, int line) {
   struct driver_pmd *pmd = work->driver;
   if (line < 0) return 0;
-  const char *str = pmd_get_memo(pmd, line + 1);
+  const char *str = pmd_get_memo_(pmd, line + 1);
   if (str && !*str) return 0;
   return str;
 }
@@ -6029,7 +6055,7 @@ void pmd_init(struct fmdriver_work *work,
   /*
   static const int memotable[3] = {1, 4, 5};
   for (int i = 0; i < 3; i++) {
-    const char *title = pmd_get_memo(pmd, memotable[i]);
+    const char *title = pmd_get_memo_(pmd, memotable[i]);
     int c = 0;
     if (title) {
       while (title[c] && (c < (FMDRIVER_TITLE_BUFLEN-1))) {
@@ -6040,7 +6066,7 @@ void pmd_init(struct fmdriver_work *work,
     work->comment[i][c] = 0;
   }
   */
-  const char *pcmfile = pmd_get_memo(pmd, -2);
+  const char *pcmfile = pmd_get_memo_(pmd, -2);
   if (pcmfile) {
     pmd_filenamecopy(pmd->ppzfile, pcmfile);
     const char *pcm2 = strchr(pcmfile, ',');
@@ -6048,11 +6074,11 @@ void pmd_init(struct fmdriver_work *work,
       pmd_filenamecopy(pmd->ppzfile2, pcm2+1);
     }
   }
-  pcmfile = pmd_get_memo(pmd, -1);
+  pcmfile = pmd_get_memo_(pmd, -1);
   if (pcmfile) {
     pmd_filenamecopy(pmd->ppsfile, pcmfile);
   }
-  pcmfile = pmd_get_memo(pmd, 0);
+  pcmfile = pmd_get_memo_(pmd, 0);
   if (pcmfile) {
     pmd_filenamecopy(pmd->ppcfile, pcmfile);
   }
@@ -6087,7 +6113,7 @@ bool pmd_ppc_load(
     pmd->adpcm_addr[i][0] = read16le(&data[32+4*i+0]);
     pmd->adpcm_addr[i][1] = read16le(&data[32+4*i+2]);
   }
-  
+
   work->opna_writereg(work, 0x100, 0x01);
   work->opna_writereg(work, 0x110, 0x13);
   work->opna_writereg(work, 0x110, 0x80);
@@ -6103,7 +6129,7 @@ bool pmd_ppc_load(
   for (int i = 0; i < 0x4c0; i++) {
     work->opna_writereg(work, 0x108, 0);
   }
-  
+
   for (size_t i = PPC_HEADER_SIZE; i < datalen; i++) {
     work->opna_writereg(work, 0x108, data[i]);
   }

@@ -232,7 +232,7 @@ struct pmd_part {
   uint8_t transpose_master;
   // 0060
   uint8_t gate_rand_range;
-  
+
   // original
   // used from pmd_part_proc_ssg, pmd_cmdc0, pmd_cmdcf_slotmask
   bool proc_masked;
@@ -466,6 +466,11 @@ struct driver_pmd {
 bool pmd_load(struct driver_pmd *pmd, uint8_t *data, uint16_t datalen);
 void pmd_init(struct fmdriver_work *work, struct driver_pmd *pmd);
 bool pmd_ppc_load(struct fmdriver_work *work, uint8_t *data, size_t datalen);
+// !ret || !ret[0] == bad
+const char *pmd_get_memo(const uint8_t *data,
+	const uint16_t datalen, int index); /* index = 1 + commentindex */
+// true if a valid pmd
+bool pmd_check_valid(const uint8_t *data, uint16_t datalen);
 #ifdef __cplusplus
 }
 #endif
