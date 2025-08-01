@@ -51,7 +51,7 @@ static uint64_t ppz8_loop(const struct ppz8_channel *channel, uint64_t ptr) {
         channel->endptr : channel->loopendptr;
     if (ptr >= loopendptr) {
       if (loopendptr == channel->loopstartptr) return (uint64_t)-1;
-      uint32_t offset = (ptr - loopendptr) >> 16;
+      uint32_t offset = (uint32_t)((ptr - loopendptr) >> 16);
       offset %= (uint32_t)((loopendptr - channel->loopstartptr) >> 16);
       offset += (uint32_t)(channel->loopstartptr >> 16);
       return (ptr & ((1<<16)-1)) | (((uint64_t)offset) << 16);
@@ -74,22 +74,22 @@ static void ppz8_channel_get_centered_samples(
     struct ppz8_channel *channel,
     int16_t *obuf, int samples) {
   struct ppz8_pcmbuf *buf = &ppz8->buf[channel->voice>>7];
-  uint32_t currind = channel->ptr >> 16;
+  uint32_t currind = (uint32_t)(channel->ptr >> 16);
   for (int i = 0; i < samples; i++) {
     int indoff = i - (samples - 1)/2;
     uint32_t ind = currind + indoff;
     if (indoff < 0) {
       if ((channel->loopstartptr != (uint64_t)-1) && channel->looped) {
-        uint32_t loopendind = ((channel->loopendptr == (uint64_t)-1) ?
-            channel->endptr : channel->loopendptr) >> 16;
-        uint32_t loopperiod = loopendind - (channel->loopstartptr >> 16);
+        uint32_t loopendind = (uint32_t)(((channel->loopendptr == (uint64_t)-1) ?
+            channel->endptr : channel->loopendptr) >> 16);
+        uint32_t loopperiod = (uint32_t)(loopendind - (channel->loopstartptr >> 16));
         if (!loopperiod) {
           ind = -1;
         } else {
-          uint32_t loopoffset = -(ind - ((uint32_t)(channel->loopstartptr >> 16)) - loopperiod);
+          uint32_t loopoffset = (uint32_t)-(int32_t)(ind - ((uint32_t)(channel->loopstartptr >> 16)) - loopperiod);
           loopoffset %= loopperiod;
           if (!loopoffset) loopoffset = loopperiod;
-          ind = (channel->loopstartptr >> 16) + loopperiod - loopoffset;
+          ind = (uint32_t)((channel->loopstartptr >> 16) + loopperiod - loopoffset);
         }
       } else {
         if (((uint32_t)-indoff) > currind) {
@@ -97,16 +97,17 @@ static void ppz8_channel_get_centered_samples(
         }
       }
     } else {
-      uint32_t loopendind = (channel->loopendptr == (uint64_t)-1) ?
-          channel->endptr : channel->loopendptr;
+      uint32_t loopendind = (uint32_t)((channel->loopendptr == (uint64_t)-1) ?
+          channel->endptr : channel->loopendptr);
       if ((channel->loopstartptr != (uint64_t)-1) && (ind >= loopendind)) {
-        uint32_t loopperiod = loopendind - (channel->loopstartptr >> 16);
+        uint32_t loopperiod = (uint32_t)
+			(loopendind - (channel->loopstartptr >> 16));
         if (!loopperiod) {
           ind = -1;
         } else {
-          uint32_t loopoffset = ind - (channel->loopstartptr >> 16);
+          uint32_t loopoffset = (uint32_t)(ind - (channel->loopstartptr >> 16));
           loopoffset %= loopperiod;
-          ind = (channel->loopstartptr >> 16) + loopoffset;
+          ind = (uint32_t)((channel->loopstartptr >> 16) + loopoffset);
         }
       }
     }
@@ -137,7 +138,7 @@ static int32_t ppz8_channel_calc_linear(struct ppz8 *ppz8, struct ppz8_channel *
 
 static int32_t ppz8_channel_calc_sinc(struct ppz8 *ppz8, struct ppz8_channel *channel) {
   int16_t samples[7];
-  uint8_t frac = channel->ptr >> 8;
+  uint8_t frac = (uint8_t)(channel->ptr >> 8);
   ppz8_channel_get_centered_samples(ppz8, channel, samples, 7);
   const int16_t *sinctable = ppz8_sinctable[frac];
   int32_t out = 0;

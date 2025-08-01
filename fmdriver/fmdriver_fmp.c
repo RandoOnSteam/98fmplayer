@@ -186,7 +186,7 @@ static uint8_t fmp_pdzf_vol_clamp(uint8_t v, uint8_t ev) {
   int16_t ret = v + u8s8(ev);
   if (ret < 0) ret = 0;
   if (ret > 0xf) ret = 0xf;
-  return ret;
+  return (uint8_t)ret;
 }
 
 static void fmp_part_pdzf_vol_update(struct fmdriver_work *work,
@@ -624,8 +624,8 @@ static void fmp_part_adpcm_relvol(struct fmdriver_work *work,
   if (newvol & 0x100) {
     newvol = (vol & 0x80) ? 0 : 0xff;
   }
-  part->current_vol = newvol;
-  part->actual_vol = newvol;
+  part->current_vol = (uint8_t)newvol;
+  part->actual_vol = (uint8_t)newvol;
   work->opna_writereg(work, 0x10b, newvol);
 }
 
@@ -1032,7 +1032,7 @@ static bool fmp_cmd77_lfo_q(struct fmdriver_work *work,
   fmp_cmd_lfo(fmp, part, lfo);
   part->pdzf.env_param.rr = lfo->delay - 2;
   part->pdzf.env_param.sr = lfo->speed;
-  part->pdzf.env_param.dd = u16s16(lfo->rate);
+  part->pdzf.env_param.dd = (uint8_t)u16s16(lfo->rate);
   part->pdzf.env_param.al = lfo->depth;
   return true;
 }
@@ -1052,7 +1052,7 @@ static bool fmp_cmd78_lfo_r(struct fmdriver_work *work,
         part->pdzf.pan = upan - 5;
       }
     } else {
-      int8_t pan = u8s8(lfo->rate);
+      int8_t pan = u8s8((uint8_t)lfo->rate);
       if (pan < -4) pan = -4;
       if (pan > 4) pan = 4;
       part->pdzf.pan = pan;
@@ -1259,7 +1259,7 @@ static bool fmp_cmd7c_lfo_pan_fm(struct fmdriver_work *work,
       val = fmp_part_cmdload(fmp, part);
       part->u.fm.wlfo.sync = val;
 
-      int pdzf_i = (part - &fmp->parts[FMP_PART_FM_EX1]);
+      int pdzf_i = (int)((part - &fmp->parts[FMP_PART_FM_EX1]));
       if ((pdzf_i == 1) || (pdzf_i == 2)) {
         struct pdzf_rhythm *pr = &fmp->pdzf.rhythm[pdzf_i-1];
         pr->voice[0] = part->u.fm.wlfo.delay;
@@ -1267,7 +1267,7 @@ static bool fmp_cmd7c_lfo_pan_fm(struct fmdriver_work *work,
         int16_t panpot = u8s8(part->u.fm.wlfo.rate);
         if (panpot < -4) panpot = -4;
         if (panpot > 4) panpot = 4;
-        pr->pan = panpot;
+        pr->pan = (uint8_t)panpot;
         pr->note = part->u.fm.wlfo.depth;
         pr->enabled = true;
       }

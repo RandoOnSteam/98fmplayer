@@ -1578,12 +1578,12 @@ static void pmd_fm_vol_out(
     if (part->lfof.vol) {
       uint8_t lslotmask = slotmask & part->vol_lfo_slotmask;
       update_slots |= lslotmask;
-      pmd_fm_vol_out_sub(lslotmask, table, part->lfo_diff);
+      pmd_fm_vol_out_sub(lslotmask, table, (uint8_t)part->lfo_diff);
     }
     if (part->lfof_b.vol) {
       uint8_t lslotmask = slotmask & part->vol_lfo_slotmask_b;
       update_slots |= lslotmask;
-      pmd_fm_vol_out_sub(lslotmask, table, part->lfo_diff_b);
+      pmd_fm_vol_out_sub(lslotmask, table, (uint8_t)part->lfo_diff_b);
     }
   }
   // 2ad3
@@ -1910,9 +1910,9 @@ static void pmd_ppz8_freq_out(
   int64_t outfreq = freq + det;
   if (outfreq < 0) outfreq = 0;
   if (outfreq > INT32_MAX) outfreq = INT32_MAX;
-  part->output_freq = outfreq;
+  part->output_freq = (uint32_t)outfreq;
   if (work->ppz8) {
-    work->ppz8_functbl->channel_freq(work->ppz8, pmd->proc_ch, outfreq);
+    work->ppz8_functbl->channel_freq(work->ppz8, pmd->proc_ch, (uint32_t)outfreq);
   }
 }
 

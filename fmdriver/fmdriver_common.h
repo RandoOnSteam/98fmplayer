@@ -16,7 +16,7 @@ static inline int8_t u8s8(uint8_t v) {
 }
 
 static inline int16_t u16s16(uint16_t v) {
-  return (v & 0x8000u) ? ((int32_t)v)-0x10000l : v;
+  return (int16_t)((v & 0x8000u) ? ((int32_t)v)-0x10000l : v);
 }
 
 static inline void fmdriver_fillpcmname(char *dest, const char *src) {

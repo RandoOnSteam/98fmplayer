@@ -121,8 +121,8 @@ static void opna_fm_slot_phase(struct opna_fm_slot *slot, unsigned freq) {
 // TODO: detune
 //  freq += slot->dt;
   unsigned det = dettable[slot->det & 0x3][slot->keycode];
-  if (slot->det & 0x4) det = -det;
-  freq += det;
+  if (slot->det & 0x4) det = (unsigned int) - (int)det;
+  freq += det; 
   freq &= (1U<<17)-1;
   int mul = slot->mul << 1;
   if (!mul) mul = 1;
