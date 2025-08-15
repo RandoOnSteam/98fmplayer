@@ -96,7 +96,10 @@ add_definitions(
     -DLIBOPNA_ENABLE_LEVELDATA
     -DLIBOPNA_ENABLE_OSCILLO
 )
-add_compile_options(/experimental:c11atomics /TC /std:c11 /volatile:iso)
+if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC" OR CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 19.30)
+	add_compile_options(/experimental:c11atomics /std:c11)
+endif()
+add_compile_options(/TC /volatile:iso)
 include_directories(
     win32
     fmdriver
