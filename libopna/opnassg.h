@@ -90,13 +90,13 @@ typedef void (*opna_ssg_sinc_calc_func_type)(unsigned resampler_index,
 extern opna_ssg_sinc_calc_func_type opna_ssg_sinc_calc_func;
 void opna_ssg_sinc_calc_c(unsigned resampler_index,
                           const int16_t *inbuf, int32_t *outbuf)
-    #if !defined(_MSC_VER) && !defined(__MACH__) && !defined(macintosh)
+    #if !defined(_MSC_VER) && !defined(__MACH__) && !defined(__MWERKS__)
         __attribute__((hot, optimize(3)))
     #endif
     ;
 void opna_ssg_sinc_calc_neon(unsigned, const int16_t *, int32_t *);
 void opna_ssg_sinc_calc_sse2(unsigned, const int16_t *, int32_t *)
-    #if !defined(_MSC_VER) && !defined(__MACH__) && !defined(macintosh)
+    #if !defined(_MSC_VER) && !defined(__MACH__) && !defined(__MWERKS__)
         __attribute__((hot, optimize(3)))
     #endif
 ;
