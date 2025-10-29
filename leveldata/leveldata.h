@@ -36,7 +36,8 @@ static inline void leveldata_update(struct leveldata *data, unsigned level) {
 }
 
 static inline void leveldata_init(struct leveldata *data) {
-  *data = (struct leveldata) {0};
+	data->level = 0; data->read = false;
+	/* == *data = (struct leveldata) {0}; */
 #if !defined(FMPLAYER_THREADUNSAFE)
   atomic_flag_clear_explicit(&data->flag, memory_order_relaxed);
 #endif

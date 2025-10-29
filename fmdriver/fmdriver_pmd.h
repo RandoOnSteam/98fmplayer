@@ -45,6 +45,17 @@ struct pmd_lfo {
   uint8_t times;
 };
 
+struct pmd_part_lfo_flags {
+    // bit 0
+    bool freq;
+    // bit 1
+    bool vol;
+    // bit 2
+    bool sync;
+    // bit 3
+    bool portamento;
+};
+
 struct pmd_part {
   // 0000
   uint16_t ptr;
@@ -75,16 +86,7 @@ struct pmd_part {
   // 0018
   struct pmd_lfo lfo_set;
   // 001c
-  struct pmd_part_lfo_flags {
-    // bit 0
-    bool freq;
-    // bit 1
-    bool vol;
-    // bit 2
-    bool sync;
-    // bit 3
-    bool portamento;
-  } lfof, lfof_b;
+  struct pmd_part_lfo_flags lfof, lfof_b;
   // 001d
   uint8_t volume_save;
   // 001e
