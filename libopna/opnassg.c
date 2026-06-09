@@ -144,10 +144,8 @@ const int16_t opna_ssg_sinctable[OPNA_SSG_SINCTABLELEN*2] = {
 opna_ssg_sinc_calc_func_type opna_ssg_sinc_calc_func = opna_ssg_sinc_calc_c;
 
 void opna_ssg_reset(struct opna_ssg *ssg) {
-  *ssg = (struct opna_ssg) {
-    .mix = 0x10000,
-    .ymf288 = true,
-  };
+  ssg->mix = 0x10000;
+  ssg->ymf288 = true;
 }
 
 void opna_ssg_resampler_reset(struct opna_ssg_resampler *resampler) {

@@ -42,7 +42,8 @@ void opna_fm_chan_reset(struct opna_fm_channel *chan) {
 }
 
 void opna_fm_reset(struct opna_fm *fm) {
-  *fm = (struct opna_fm) {0};
+  struct opna_fm fmcleared = {0};
+  *fm = fmcleared;
   for (int i = 0; i < 6; i++) {
     opna_fm_chan_reset(&fm->channel[i]);
     fm->lselect[i] = true;
